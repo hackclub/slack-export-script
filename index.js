@@ -94,7 +94,7 @@ const downloadExports = async () => {
   const exports = (await getExports()) || [];
 
   for (let i = 0; i < exports.length; i++) {
-    if (fs.existsSync(`./exports/${exports[i].Status}.zip`)) {
+    if (fs.existsSync(`./exports/${exports[i]["Date range"]}.zip`)) {
       console.log(`📂 Export ${i + 1} already downloaded`);
       continue;
     }
@@ -106,7 +106,7 @@ const downloadExports = async () => {
           Cookie: `d=${process.env.D};`,
         },
       }),
-      fs.createWriteStream(`./exports/${exports[i].Status}.zip`)
+      fs.createWriteStream(`./exports/${exports[i]["Date range"]}.zip`)
     );
 
     console.log(`🎉 Export ${i + 1} downloaded`);
