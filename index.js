@@ -3,28 +3,26 @@ import puppeteer from "puppeteer";
 import { pipeline as streamPipeline } from "stream/promises";
 import fs from "fs";
 import got from "got";
+import { config } from "dotenv";
+config();
 
 const cookies = [
-  { name: "b", value: process.env.B, domain: ".slack.com" },
-  {
-    name: "x",
-    value: process.env.X,
-    domain: ".slack.com",
-  },
-  {
-    name: "d",
-    value: process.env.D,
-    domain: ".slack.com",
-  },
-  { name: "d-s", value: process.env.D_S, domain: ".slack.com" },
-  { name: "lc", value: process.env.LC, domain: ".slack.com" },
+  // { name: "b", value: process.env.B, domain: ".slack.com" },
+  // {
+  //   name: "x",
+  //   value: process.env.X,
+  //   domain: ".slack.com",
+  // },
+  { name: "d", value: process.env.D, domain: ".slack.com" },
+  // { name: "d-s", value: process.env.D_S, domain: ".slack.com" },
+  // { name: "lc", value: process.env.LC, domain: ".slack.com" },
 ];
 
 const getExports = async () => {
   const res = await fetch("https://hackclub.slack.com/services/export", {
     method: "GET",
     headers: {
-      Cookie: `b=${process.env.B}; x=${process.env.X}; d=${process.env.D}; d-s=${process.env.D_S}; lc=${process.env.LC}`,
+      Cookie: `d=${process.env.D};`,
     },
   });
 
@@ -106,21 +104,27 @@ const downloadExports = async () => {
   const exports = (await getExports()) || [];
 
   for (let i = 0; i < exports.length; i++) {
+    console.log(`📥 Downloading export ${i + 1}`);
     await streamPipeline(
       got.stream(exports[i].Status, {
         headers: {
-          Cookie: `b=${process.env.B}; x=${process.env.X}; d=${process.env.D}; d-s=${process.env.D_S}; lc=${process.env.LC}`,
+          Cookie: `d=${process.env.D};`,
         },
       }),
       fs.createWriteStream(`./exports/${i + 1}.zip`)
     );
+
+    console.log(`🎉 Export ${i + 1} downloaded`);
   }
 };
 
 if (process.argv[2] === "start") {
   startExport().then(() => process.exit(0));
 } else if (process.argv[2] === "get") {
-  getExports().then(() => process.exit(0));
+  getExports().then((data) => {
+    console.log(data);
+    process.exit(0);
+  });
 } else if (process.argv[2] === "download") {
   downloadExports().then(() => process.exit(0));
 } else {
