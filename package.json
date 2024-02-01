@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "dependencies": {
+    "got": "^14.1.0",
+    "puppeteer": "^21.10.0"
+  }
+}
