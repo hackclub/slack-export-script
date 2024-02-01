@@ -6,17 +6,7 @@ import got from "got";
 import { config } from "dotenv";
 config();
 
-const cookies = [
-  // { name: "b", value: process.env.B, domain: ".slack.com" },
-  // {
-  //   name: "x",
-  //   value: process.env.X,
-  //   domain: ".slack.com",
-  // },
-  { name: "d", value: process.env.D, domain: ".slack.com" },
-  // { name: "d-s", value: process.env.D_S, domain: ".slack.com" },
-  // { name: "lc", value: process.env.LC, domain: ".slack.com" },
-];
+const cookies = [{ name: "d", value: process.env.D, domain: ".slack.com" }];
 
 const getExports = async () => {
   const res = await fetch("https://hackclub.slack.com/services/export", {
@@ -104,6 +94,11 @@ const downloadExports = async () => {
   const exports = (await getExports()) || [];
 
   for (let i = 0; i < exports.length; i++) {
+    if (fs.existsSync(`./exports/${exports[i].Status}.zip`)) {
+      console.log(`📂 Export ${i + 1} already downloaded`);
+      continue;
+    }
+
     console.log(`📥 Downloading export ${i + 1}`);
     await streamPipeline(
       got.stream(exports[i].Status, {
@@ -111,7 +106,7 @@ const downloadExports = async () => {
           Cookie: `d=${process.env.D};`,
         },
       }),
-      fs.createWriteStream(`./exports/${i + 1}.zip`)
+      fs.createWriteStream(`./exports/${exports[i].Status}.zip`)
     );
 
     console.log(`🎉 Export ${i + 1} downloaded`);
